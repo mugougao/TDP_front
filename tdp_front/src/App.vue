@@ -12,9 +12,17 @@
 </template>
 
 <script setup>
-// async function buttenclik () {
-// await let buttens=[transflow,station]
-// }
+import router from "@/router"
+ function buttenclik() {
+  const clickedbuttenId = event.target.id;
+  
+if(clickedbuttenId=="transflow"){
+  router.push('/')
+}
+else if(clickedbuttenId=="station"){
+  router.push('/station')
+}
+}
 </script>
 
 <style>
@@ -67,15 +75,15 @@ body {
   border-radius: 0px 10px 10px 0px;
 }
 
-#transflow:hover {
+ #transflow:hover {
   background-color: #3B3467;
 
 }
 
-#transflow:active {
+ #transflow:focus {
   background-color: #705DEB;
 
-}
+} 
 
 #station {
   position: absolute;
@@ -93,12 +101,12 @@ body {
   border-radius: 0px 10px 10px 0px;
 }
 
-#station:hover {
+ #station:hover {
   background-color: #3B3467;
 }
 
-#station:active {
+#station:focus {
   background-color: #705DEB;
 
-}
+} 
 </style>
