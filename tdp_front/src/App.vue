@@ -8,21 +8,43 @@
       <button id="transflow" @click="buttenclik">交通流数据处理工具箱</button>
       <button id="station" @click="buttenclik">公路桩号坐标计算工具箱</button>
     </div>
+    <router-view/>
   </body>
+  
 </template>
 
 <script setup>
 import router from "@/router"
- function buttenclik() {
+import { onMounted } from 'vue';
+function buttenclik() {
+  //获取点击元素的id
   const clickedbuttenId = event.target.id;
-  
-if(clickedbuttenId=="transflow"){
-  router.push('/')
+  //设置左侧菜单栏选项被选中时颜色变为紫色，同时其他选项回复原色
+  if (clickedbuttenId == "transflow") {
+    router.push('/transflow')
+    document.getElementById("transflow").style.backgroundColor = "#705DEB"
+    document.getElementById("station").style.backgroundColor = "#1C1E24"
+  }
+  else if (clickedbuttenId == "station") {
+    router.push('/station')
+    document.getElementById("station").style.backgroundColor = "#705DEB"
+    document.getElementById("transflow").style.backgroundColor = "#1C1E24"
+  }
 }
-else if(clickedbuttenId=="station"){
-  router.push('/station')
-}
-}
+
+//保证页面刷新时左侧菜单栏选项颜色不变化
+onMounted(() => {
+  let currentPageUrl = window.location.hash;
+  console.log(currentPageUrl)
+  if (currentPageUrl == "#/transflow"|| currentPageUrl == "#/transflowSetting") {
+    document.getElementById("transflow").style.backgroundColor = "#705DEB"
+  }
+  else if (currentPageUrl == "#/station") {
+    document.getElementById("station").style.backgroundColor = "#705DEB"
+  }
+})
+
+
 </script>
 
 <style>
@@ -75,15 +97,15 @@ body {
   border-radius: 0px 10px 10px 0px;
 }
 
- #transflow:hover {
+#transflow:hover {
   background-color: #3B3467;
 
 }
 
- #transflow:focus {
+/* #transflow:focus {
   background-color: #705DEB;
 
-} 
+}  */
 
 #station {
   position: absolute;
@@ -101,12 +123,12 @@ body {
   border-radius: 0px 10px 10px 0px;
 }
 
- #station:hover {
+#station:hover {
   background-color: #3B3467;
 }
 
-#station:focus {
+/* #station:focus {
   background-color: #705DEB;
 
-} 
+}  */
 </style>

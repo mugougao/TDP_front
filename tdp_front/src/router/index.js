@@ -2,9 +2,10 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import station from '../views/station.vue'
 import transflow from '../views/transflow.vue'
 import transflowSetting from '../views/transflowSetting.vue'
+import start from '../views/start.vue'
 const routes = [
   {
-    path: '/',
+    path: '/transflow',
     name: 'transflow',
     component: transflow
   },
@@ -17,6 +18,11 @@ const routes = [
     path: '/station',
     name: 'station',
     component: station
+  },
+  {
+    path: '/',
+    name: 'start',
+    component: start
   }
 ]
 
