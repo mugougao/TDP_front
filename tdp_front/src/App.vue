@@ -31,11 +31,9 @@ function buttenclik() {
     document.getElementById("transflow").style.backgroundColor = "#1C1E24"
   }
 }
-
 //保证页面刷新时左侧菜单栏选项颜色不变化
 onMounted(() => {
   let currentPageUrl = window.location.hash;
-  console.log(currentPageUrl)
   if (currentPageUrl == "#/transflow"|| currentPageUrl == "#/transflowSetting") {
     document.getElementById("transflow").style.backgroundColor = "#705DEB"
   }
@@ -54,13 +52,12 @@ body {
 
 #background {
   position: absolute;
-  right: 0px;
   left: 256px;
+  width:1650px;
   top: 0px;
   height: 100%;
   border-radius: 30px 0px 0px 30px;
   opacity: 1;
-
   background: #1C1E24;
 }
 
@@ -102,10 +99,6 @@ body {
 
 }
 
-/* #transflow:focus {
-  background-color: #705DEB;
-
-}  */
 
 #station {
   position: absolute;
@@ -127,8 +120,4 @@ body {
   background-color: #3B3467;
 }
 
-/* #station:focus {
-  background-color: #705DEB;
-
-}  */
 </style>
