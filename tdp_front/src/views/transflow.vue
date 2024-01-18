@@ -1,6 +1,7 @@
 <template>
   <div class="transflow">
     <h1 id="title">任务列表</h1>
+    <el-button color="#705DEB" id="new_task" @click="task_setting_new">新建任务</el-button>
     <div v-for="(item, index) in items" id="list" :key="index">
       <div class="list_background">
         <p class="trip_name">{{ item.trip_name }}</p>
@@ -8,15 +9,15 @@
         <div class="enable_lighting" :style="{ background: item.color1 }"></div>
         <p class="enable">{{ item.enable }}</p>
         <!-- 获取输出地址 -->
-        <el-icon id="link_icon" style="color: white">
+        <el-icon id="link_icon" style="color: white" @click="get_url(index)">
           <Link />
         </el-icon>
         <p class="enable" id="url" @click="get_url(index)">获取输出地址</p>
         <!-- 修改设置 -->
-        <el-icon id="setting_icon" style="color: white">
+        <el-icon id="setting_icon" style="color: white" @click="task_setting">
           <Operation />
         </el-icon>
-        <p class="enable" id="setting">修改设置</p>
+        <p class="enable" id="setting" @click="task_setting">修改设置</p>
         <!-- 启停任务 -->
         <el-icon id="start_icon" :style="{ color: item.color2 }" @click="start_task(index, item.trip_id)">
           <component :is="item.icon" />
@@ -30,13 +31,21 @@
         <p class="enable" id="delete" @click="delete_task(index, item.trip_id)">删除任务</p>
       </div>
     </div>
+  
   </div>
 </template>    
 <script setup>
 import { ref } from 'vue';
+import { ElMessage } from 'element-plus'
+import router from "@/router"
 let url = window.location.hostname
 
-
+function task_setting(){
+  router.push('/transflowSetting')
+}
+function task_setting_new(){
+  router.push('/transflowSetting_new')
+}
 let items = ref([]);
 async function getList(url) {
   try {
@@ -86,7 +95,6 @@ async function delete_task(index, trip_id) {
       headers: {
         'Content-Type': 'application/json',
       },
-
     })
     .then(response => {
       if (!response.ok) {
@@ -146,6 +154,13 @@ async function get_url(index) {
   textarea.select();
   await document.execCommand('copy');
   document.body.removeChild(textarea);
+
+
+  ElMessage({
+    message: '数据输出地址已经复制到剪切板',
+    grouping: true,
+    type: 'info',
+  })
 }
 
 
@@ -292,4 +307,17 @@ getList(url)
    left: 760px;
    color: white;
    cursor: pointer;
- }</style>
+ }
+
+ #new_task{
+  position: absolute;
+  top: 60px;
+  left: 1490px;
+  width: 120px;
+  height: 40px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.1em;
+ }
+
+ </style>
