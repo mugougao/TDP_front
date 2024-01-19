@@ -3,6 +3,7 @@ import station from '../views/station.vue'
 import transflow from '../views/transflow.vue'
 import transflowSetting from '../views/transflowSetting.vue'
 import start from '../views/start.vue'
+import transflowSetting_new from '../views/transflowSetting_new.vue'
 const routes = [
   {
     path: '/transflow',
@@ -13,6 +14,11 @@ const routes = [
     path: '/transflowSetting',
     name: 'transflowSetting',
     component: transflowSetting
+  },
+  {
+    path: '/transflowSetting_new',
+    name: 'transflowSetting_new',
+    component: transflowSetting_new
   },
   {
     path: '/station',
