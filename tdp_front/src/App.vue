@@ -46,16 +46,17 @@ onMounted(() => {
 </script>
 
 <style>
-body {
+body,html {
   background-color: #0E1018;
+  height:100%
 }
 
 #background {
-  position: absolute;
+  position: fixed;
   left: 256px;
-  width:1650px;
+  right: 0%;
   top: 0px;
-  height: 100%;
+  bottom:0px;
   border-radius: 30px 0px 0px 30px;
   opacity: 1;
   background: #1C1E24;
@@ -118,6 +119,7 @@ body {
 
 #station:hover {
   background-color: #3B3467;
+  
 }
 
 </style>

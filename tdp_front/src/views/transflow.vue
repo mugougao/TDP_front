@@ -31,7 +31,7 @@
         <p class="enable" id="delete" @click="delete_task(index, item.trip_id)">删除任务</p>
       </div>
     </div>
-  
+  <div id="last_div"></div>
   </div>
 </template>    
 <script setup>
@@ -171,7 +171,9 @@ getList(url)
 
 </script>  
   
-<style> .transflow {
+<style> 
+
+.transflow {
    position: absolute;
    right: 0px;
    left: 256px;
@@ -265,7 +267,13 @@ getList(url)
    margin-bottom: 15px;
    top: 130px;
  }
-
+ #last_div{
+  position: relative;
+  width: 1479px;
+  height: 30px;
+  top: 120px;
+  left: 80px;
+ }
  #link_icon {
    left: 290px;
    cursor: pointer;
