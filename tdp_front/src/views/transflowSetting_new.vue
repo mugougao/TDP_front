@@ -3,7 +3,7 @@
     <div id="taskx1">
       <h2 class="title_l">基础设置：</h2>
       <div id="task_name1">
-        <label id="name_lable">任务名称：</label>
+        <label class="ev_lable">任务名称：</label>
         <input v-model="task_info.trip_name" class="input" />
         <label class="must1">*</label>
       </div>
@@ -22,12 +22,19 @@
       <div id="bk1"></div>
       <el-radio-group size="small" id="radio1" v-model="selectedPanel">
         <el-radio label="zaixian" size="large" v-model="selectedPanel">在线数据</el-radio>
-        <el-radio label="lixian" size="large" v-model="selectedPanel" >离线数据</el-radio>
+        <el-radio label="lixian" size="large" v-model="selectedPanel">离线数据</el-radio>
         <div id="line"></div>
       </el-radio-group>
       <div v-if="selectedPanel === 'zaixian'">
-        <!-- Panel 1 的内容 -->
-        <h3>This is Panel 1</h3>
+        <el-button color="#705DEB" id="add_url" @click="add_url" v-if="selectedPanel == 'zaixian'">添加数据源</el-button>
+        <div v-for="(item, index) in task_info.trip_source_list" id="url_list" :key="index">
+          <div id="data_info">
+            <label class="ev_lable" id="url_index">地址{{ index }}：</label>
+            <input v-model="item.source_url" class="input" id="data_url_input" />
+            <el-checkbox v-model="task_info.trip_source_list.retry" label="自动重连" true-lable="true" id="retry" false-label="false" size="large" />
+            <em id="shanchu">删除</em>
+          </div>
+        </div>
       </div>
       <div v-else-if="selectedPanel === 'lixian'" id="lixian">
         <div id="jwd">
@@ -35,8 +42,8 @@
           <label id="file_upload">文件上传：</label>
           <input v-model="task_info.trip_name" class="input" id="lon" />
           <label class="must1">*</label>
-          <el-upload class="upload-demo" id="upload" :show-file-list="true" drag :action="uploadip" :limit=1   :on-success="handleSuccess"  :on-remove="remove"
-            multiple>
+          <el-upload class="upload-demo" id="upload" :show-file-list="true" drag :action="uploadip" :limit=1
+            :on-success="handleSuccess" :on-remove="remove" multiple>
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
             <div class="el-upload__text">
               拖拽或<em id="djsc">点击上传离线交通流文件</em>(.txt)
@@ -44,28 +51,45 @@
           </el-upload>
         </div>
         <div id="uploadsuccess">
-          <el-icon color="#705DEB" size="60" id="Finished"><Finished /></el-icon>
+          <el-icon color="#705DEB" size="60" id="Finished">
+            <Finished />
+          </el-icon>
           <h3 id="file_name">{{ file_name }}</h3>
         </div>
         <label class="must3">*</label>
       </div>
     </div>
-    <div id="taskx3">
+    <div id="taskx3" v-if="selectedPanel == 'zaixian'">
       <h2 class="title_l">频率规整：</h2>
-      <div id="plgz">
-        <label id="name_lable">标准周期（ms）：</label>
-        <input v-model="task_info.trip_name" class="input" id="bzzq" />
-        <label class="must1">*</label>
+      <div id="Issave">
+        <el-switch v-model="Isregular" size="large" active-color="#705DEB" inactive-color="#000000" />
+        <div id="line2"></div>
+      </div>
+      <div class="task_name1" id="task_name1x">
+        <label class="ev_lable" id="bzzq">标准周期：</label>
+        <input v-model="task_info.send_period_ms" class="input" id="pl" />
+        <label class="ev_lable" id="ms">ms</label>
       </div>
     </div>
-    <div id="taskx4">
-      <h2 class="title_l">轨迹落盘：</h2>
+    <div id="taskx4" v-if="selectedPanel == 'zaixian'">
+      <h2 class="title_l ">轨迹落盘：</h2>
+      <div id="Issave">
+        <el-switch v-model="Issave" size="large" active-color="#705DEB" inactive-color="#000000" />
+        <div id="line2"></div>
+      </div>
+      <label class="ev_lable" id="bcsj">保存时间：</label>
+      <input v-model="task_info.dump_expire_day" class="input" id="day" />
+      <label class="ev_lable" id="tian">天</label>
     </div>
     <div id="taskx5">
       <h2 class="title_l">轨迹纠偏：</h2>
     </div>
     <div id="taskx6">
       <h2 class="title_l">轨迹调度：</h2>
+      <div id="Issave">
+        <el-switch v-model="Isschedule" size="large" active-color="#705DEB" inactive-color="#000000" />
+        <div id="line2"></div>
+      </div>
     </div>
     <div id="task_last">
     </div>
@@ -76,44 +100,69 @@
 import { ref, onMounted } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 let url = ref(0)
-let file_name=ref("")
+let Issave = ref("false")
+let Isregular = ref("false")
+let Isschedule = ref("false")
+let file_name = ref("")
 let task_info = ref(
   {
     "trip_source_list": [
+      {
+        "source_url": "",
+        "source_protocol": "ws://",
+        "enable": true,
+        "retry": true
+      }
 
     ],
     "trip_static_source_list": [
-
+      {
+        "source_file": "/upload/2024/01/27/4b395a51-712d-4b0a-9194-9dc5f0f53cc2.txt",
+        "source_type": "",
+        "source_center_lat": 0,
+        "source_center_lon": 0,
+        "loop_send": true
+      }
     ],
     "trip_name": "",
     "trip_code": "",
-    "enable": false,
+    "enable": true,        //开启任务
     "space_query": false,  //是否开启空间查询
     "inactive_fix": false, //静止优化
     "turn_direction_fix": false,  //转向优化
-    "fix_accuracy": "road",       //优化级别 lane-车道 road-道路
-    "fix_file": "/tmp/123.txt",   //路网文件 fix_file
+    "fix_accuracy": "",       //优化级别 lane-车道 road-道路
+    "fix_file": "",   //路网文件 fix_file
     "is_dump": false,             //是否开启录制
-    "dump_expire_day": 0,         //有效时长
-    "send_period_ms": 0           //时间间隔
+    "dump_expire_day": "",         //有效时长
+    "send_period_ms": ""          //时间间隔
   }
 )
 const selectedPanel = ref("zaixian")
 let ip = window.location.hostname
 let ws = `ws://${ip}:31000/ws/streamer/`
 url.value = ws
-let uploadip=`http://${ip}:31000/api/v1/common/upload`
+let uploadip = `http://${ip}:31000/api/v1/common/upload`
 
-function handleSuccess(response, file, fileList) {  
-      console.log(response); // 服务器返回的数据  
-      console.log(file); // 上传的文件信息  
-      console.log(fileList); // 上传的文件列表  
-      file_name.value=file.name
-      document.getElementById("uploadsuccess").style.display="inline-block";
-    }
-function remove() {  
-      document.getElementById("uploadsuccess").style.display="none";
-    }
+
+function add_url() {
+  task_info.value.trip_source_list.push({
+        "source_url": "",
+        "source_protocol": "ws://",
+        "enable": true,
+        "retry": true
+      })
+}
+
+function handleSuccess(response, file, fileList) {
+  console.log(response); // 服务器返回的数据  
+  console.log(file); // 上传的文件信息  
+  console.log(fileList); // 上传的文件列表  
+  file_name.value = file.name
+  document.getElementById("uploadsuccess").style.display = "inline-block";
+}
+function remove() {
+  document.getElementById("uploadsuccess").style.display = "none";
+}
 onMounted(() => {
   var url1 = document.querySelector('#url1');
   var url_input = document.querySelector('#url_input');
@@ -125,12 +174,115 @@ onMounted(() => {
 
 </script>  
   
-<style> #task_new {
+<style> 
+#retry{
+  position: absolute;
+  left: 150px;
+}
+#shanchu{
+  position: relative;
+  left: 150px;
+  color: rgb(122, 7, 7);
+  cursor: pointer;
+  font-style: normal;
+  user-select: none;
+
+}
+#data_info{
+  position:relative;
+  top: -45px;
+  left:30px;
+  width: 1200px;
+  margin-top: 10px;
+
+}
+#data_url_input{
+  position:relative;
+  top: 0px;
+  left: 26px;
+}
+#url_index{
+  position:relative;
+  top: 0px;
+  left: 0px;
+  width: 100px;
+
+}
+
+#task_name1x {
+   position: absolute;
+   left: 150px;
+ }
+
+ #Issave {
+   position: absolute;
+   top: 35px;
+   left: 40px
+ }
+
+ #line2 {
+   position: absolute;
+   background-color: #494444;
+   height: 80px;
+   width: 2px;
+   left: 80px;
+   top: -25px;
+ }
+
+ #name_lable {
+   color: white;
+   font-size: 18px;
+ }
+
+ #bcsj {
+   position: relative;
+   top: 35px;
+   left: 180px;
+ }
+
+ #bzzq {
+   position: relative;
+   top: 35px;
+   left: 30px;
+
+ }
+
+ #tian {
+   position: relative;
+   top: 35px;
+   left: 190px;
+ }
+
+ #day {
+   position: relative;
+   top: 35px;
+   left: 180px;
+   width: 50px;
+ }
+
+ #ms {
+   position: relative;
+   top: 35px;
+   left: 38px;
+ }
+
+ #add_url {
+   position: relative;
+   top: -70px;
+   left: 1130px;
+ }
+
+ #pl {
+   position: relative;
+   left: 30px;
+   top: 35px;
+   width: 50px;
+ }
+
+ #task_new {
    position: absolute;
    right: 0px;
    left: 256px;
-   top: 0px;
-   height: 100%;
    border-radius: 30px 0px 0px 30px;
    opacity: 1;
    background: #1C1E24;
@@ -194,19 +346,20 @@ onMounted(() => {
    font-weight: lighter;
  }
 
- #name_lable {
+ .ev_lable {
    position: relative;
    color: #ffffff;
    font-size: 18px;
    top: 0px;
    user-select: none;
  }
+
  #file_upload {
    position: absolute;
    color: #ffffff;
    font-size: 18px;
    top: 60px;
-   left:18px;
+   left: 18px;
    user-select: none;
  }
 
@@ -238,7 +391,8 @@ onMounted(() => {
    width: 1479px;
    border-radius: 10px;
    min-height: 100px;
-   top: 200px;
+   margin-top: 100px;
+   top: 100px;
    left: 80px;
  }
 
@@ -250,7 +404,8 @@ onMounted(() => {
    width: 1479px;
    border-radius: 10px;
    min-height: 100px;
-   top: 300px;
+   margin-top: 100px;
+   top: 100px;
    left: 80px;
  }
 
@@ -262,7 +417,8 @@ onMounted(() => {
    width: 1479px;
    border-radius: 10px;
    min-height: 100px;
-   top: 400px;
+   margin-top: 100px;
+   top: 100px;
    left: 80px;
  }
 
@@ -272,18 +428,35 @@ onMounted(() => {
    border-color: #705DEB;
    border-width: 2px;
    width: 1479px;
+   height: 200px;
    border-radius: 10px;
    min-height: 100px;
-   top: 500px;
+   margin-top: 100px;
+   top: 100px;
    left: 80px;
  }
+
+ #taskx6 {
+   position: relative;
+   border-style: solid;
+   border-color: #705DEB;
+   border-width: 2px;
+   width: 1479px;
+   border-radius: 10px;
+   min-height: 100px;
+   margin-top: 100px;
+   top: 100px;
+   left: 80px;
+ }
+
  #task_last {
    position: relative;
    width: 1479px;
    height: 30px;
-   top: 500px;
-   left: 80px;
+   margin-top: 100px;
+   top: 100px;
  }
+
  #url1 {
    position: absolute;
    top: 0px;
@@ -332,6 +505,7 @@ onMounted(() => {
    left: 920px;
    user-select: none;
  }
+
  .must3 {
    position: absolute;
    color: #ff0000;
@@ -340,6 +514,7 @@ onMounted(() => {
    left: 1011px;
    user-select: none;
  }
+
  .title_l {
    position: absolute;
    color: #ffffff;
@@ -420,41 +595,47 @@ onMounted(() => {
    border: none;
    box-sizing: border-box;
  }
- .upload-demo{
-  position: relative;
-  width: 886px;
-  top: 40px;
-  left: 110px;
- }
- #djsc{
-  color: #705DEB;
+
+ .upload-demo {
+   position: relative;
+   width: 886px;
+   top: 40px;
+   left: 110px;
  }
 
- .dragging{
-  background-color: #000000;
-
- }
- #uploadsuccess{
-  position: absolute;
-  height:  182px;
-  width: 884px;
-  background-color: #000000;
-  top: 65px;
-  left:111px;
-  border-radius: 5px;
-  display: none;
+ #djsc {
+   color: #705DEB;
  }
 
- #Finished{
-  position: relative;
-  top:  20%;
-  left: 45%;
+ .dragging {
+   background-color: #000000;
+
  }
- #file_name{
-  position: relative;
-  color: #ffffff;
-  text-align: center;
-  top: 20px;
+
+ #uploadsuccess {
+   position: absolute;
+   height: 182px;
+   width: 884px;
+   background-color: #000000;
+   top: 62px;
+   left: 111px;
+   border-radius: 5px;
+   display: none;
  }
+
+ #Finished {
+   position: relative;
+   top: 20%;
+   left: 45%;
+ }
+
+ #file_name {
+   position: relative;
+   color: #ffffff;
+   text-align: center;
+   top: 20px;
+ }
+
+
 </style>
 
