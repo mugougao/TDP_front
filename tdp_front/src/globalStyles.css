@@ -1,0 +1,62 @@
+/* globalStyles.css */  
+/* 更改选中状态的单选框的背景颜色 */  
+.el-radio__input.is-checked .el-radio__inner,  
+.el-radio__input.is-indeterminate .el-radio__inner {  
+  border-color: #705DEB; /* 默认是蓝色，您可以更改为任何颜色 */  
+  background-color: #705DEB; /* 同样，更改为您想要的颜色 */  
+} 
+.el-radio__input.is-checked + span.el-radio__label {  
+    color: #705DEB; /* 选中态的文字颜色 */  
+  }  
+
+.el-upload-dragger.is-dragover{
+  background-color: black;
+  border-color: #705DEB;
+  border-radius: 5px;
+  border-style: solid;
+}
+.el-upload-dragger{
+   background-color: black;
+   border-color: #705DEB;
+   border-radius: 5px;
+   border-style: solid;
+
+}
+.el-upload-dragger:focus{
+  border-color: #705DEB;
+}
+
+.el-upload-dragger:hover{
+  border-color: #705DEB;
+  background-color: black;
+}
+.el-upload-list__item:hover{
+  background-color: #1C1E24;
+}
+.el-checkbox__label{
+  color:white;
+}
+.el-checkbox__inner{
+  background-color: black;
+  border-color: #705DEB;
+  height: 10px;
+
+}
+
+.el-checkbox__inner:hover{
+  border-color: #705DEB;
+}
+
+ .el-checkbox__input.is-checked .el-checkbox__inner,  
+ .el-checkbox__input.is-indeterminate .el-checkbox__inner {  
+  background-color: black; /* 修改背景颜色 */  
+  border-color: #705DEB; /* 修改边框颜色 */  
+}  
+  
+.el-checkbox__input.is-checked .el-checkbox__inner::after,  
+.el-checkbox__input.is-indeterminate .el-checkbox__inner::after {  
+  border-color: #705DEB; /* 修改勾选图标的颜色 */  
+}  
+el-switch__label.el-switch__label--left{
+  color: #705DEB;
+}
