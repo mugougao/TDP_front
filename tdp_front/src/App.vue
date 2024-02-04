@@ -1,4 +1,8 @@
 <template>
+  <head>  
+  <link rel="shortcut icon" href="/path/to/your/logo.png">  
+  <link rel="icon" href="/path/to/your/logo.png">  
+</head>
   <body>
     <div id="background"></div>
     <div id="menu_background">

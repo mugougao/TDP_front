@@ -26,13 +26,17 @@
         <div id="line"></div>
       </el-radio-group>
       <div v-if="selectedPanel === 'zaixian'">
-        <el-button color="#705DEB" id="add_url" @click="add_url" v-if="selectedPanel == 'zaixian'">添加数据源</el-button>
+        <el-button color="#705DEB" id="add_url" @click="add_url()" v-if="selectedPanel == 'zaixian'">添加数据源</el-button>
         <div v-for="(item, index) in task_info.trip_source_list" id="url_list" :key="index">
           <div id="data_info">
-            <label class="ev_lable" id="url_index">地址{{ index }}：</label>
+            <label class="ev_lable" id="url_index">地址{{ index+1 }}：</label>
             <input v-model="item.source_url" class="input" id="data_url_input" />
-            <el-checkbox v-model="task_info.trip_source_list.retry" label="自动重连" true-lable="true" id="retry" false-label="false" size="large" />
-            <em id="shanchu">删除</em>
+            <div id="retry">
+              <el-checkbox  v-model="item.retry" true-label="true" false-label="false"	 size="large" />
+              <em id="zidongchonglian">自动重连</em>
+              <em id="shanchu"  @click="delete_url(index)" >删除</em>
+            </div>
+            
           </div>
         </div>
       </div>
@@ -61,12 +65,12 @@
     </div>
     <div id="taskx3" v-if="selectedPanel == 'zaixian'">
       <h2 class="title_l">频率规整：</h2>
-      <div id="Issave">
-        <el-switch v-model="Isregular" size="large" active-color="#705DEB" inactive-color="#000000" />
+      <!-- <div id="Issave">
+        <el-switch v-model="task_info.is_send_period_ms" size="large" active-color="#705DEB" inactive-color="#000000" />
         <div id="line2"></div>
-      </div>
-      <div class="task_name1" id="task_name1x">
-        <label class="ev_lable" id="bzzq">标准周期：</label>
+      </div> -->
+      <div class="task_name1" id="task_name1x" v-if="task_info.is_send_period_ms">
+        <label class="ev_lable"  id="bzzq">标准周期：</label>
         <input v-model="task_info.send_period_ms" class="input" id="pl" />
         <label class="ev_lable" id="ms">ms</label>
       </div>
@@ -74,12 +78,12 @@
     <div id="taskx4" v-if="selectedPanel == 'zaixian'">
       <h2 class="title_l ">轨迹落盘：</h2>
       <div id="Issave">
-        <el-switch v-model="Issave" size="large" active-color="#705DEB" inactive-color="#000000" />
+        <el-switch v-model="task_info.is_dump" 	size="large" active-color="#705DEB" inactive-color="#000000" />
         <div id="line2"></div>
       </div>
-      <label class="ev_lable" id="bcsj">保存时间：</label>
-      <input v-model="task_info.dump_expire_day" class="input" id="day" />
-      <label class="ev_lable" id="tian">天</label>
+      <label class="ev_lable" id="bcsj" v-if="task_info.is_dump">保存时间：</label>
+      <input v-if="task_info.is_dump" v-model="task_info.dump_expire_day" class="input" id="day" />
+      <label v-if="task_info.is_dump" class="ev_lable" id="tian">天</label>
     </div>
     <div id="taskx5">
       <h2 class="title_l">轨迹纠偏：</h2>
@@ -87,8 +91,8 @@
     <div id="taskx6">
       <h2 class="title_l">轨迹调度：</h2>
       <div id="Issave">
-        <el-switch v-model="Isschedule" size="large" active-color="#705DEB" inactive-color="#000000" />
-        <div id="line2"></div>
+        <el-switch v-model="task_info.space_query" size="large"  active-active-value="true"  inactive-value="false"	active-color="#705DEB" inactive-color="#000000" />
+      <div id="line2"></div>
       </div>
     </div>
     <div id="task_last">
@@ -100,9 +104,7 @@
 import { ref, onMounted } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 let url = ref(0)
-let Issave = ref("false")
-let Isregular = ref("false")
-let Isschedule = ref("false")
+
 let file_name = ref("")
 let task_info = ref(
   {
@@ -111,7 +113,7 @@ let task_info = ref(
         "source_url": "",
         "source_protocol": "ws://",
         "enable": true,
-        "retry": true
+        "retry": false
       }
 
     ],
@@ -132,9 +134,10 @@ let task_info = ref(
     "turn_direction_fix": false,  //转向优化
     "fix_accuracy": "",       //优化级别 lane-车道 road-道路
     "fix_file": "",   //路网文件 fix_file
-    "is_dump": false,             //是否开启录制
+    "is_dump": "false",             //是否开启录制
     "dump_expire_day": "",         //有效时长
-    "send_period_ms": ""          //时间间隔
+    "send_period_ms": "100",       //时间间隔
+    "is_send_period_ms":"false"
   }
 )
 const selectedPanel = ref("zaixian")
@@ -144,15 +147,25 @@ url.value = ws
 let uploadip = `http://${ip}:31000/api/v1/common/upload`
 
 
+
+//添加一个数据源地址
 function add_url() {
   task_info.value.trip_source_list.push({
         "source_url": "",
         "source_protocol": "ws://",
         "enable": true,
-        "retry": true
+        "retry": false
       })
 }
 
+
+//删除一个数据源地址
+function delete_url(index){
+  task_info.value.trip_source_list.splice(index,1)
+}
+
+
+//获取上传成功的回调之后，创建上传成功信息
 function handleSuccess(response, file, fileList) {
   console.log(response); // 服务器返回的数据  
   console.log(file); // 上传的文件信息  
@@ -160,6 +173,8 @@ function handleSuccess(response, file, fileList) {
   file_name.value = file.name
   document.getElementById("uploadsuccess").style.display = "inline-block";
 }
+
+//删除已经上传的文件
 function remove() {
   document.getElementById("uploadsuccess").style.display = "none";
 }
@@ -177,15 +192,31 @@ onMounted(() => {
 <style> 
 #retry{
   position: absolute;
-  left: 150px;
+  top:-5px;
+  left: 1010px;
+  width:300px;
 }
 #shanchu{
   position: relative;
-  left: 150px;
+  left: 25px;
+  top:-2px;
   color: rgb(122, 7, 7);
   cursor: pointer;
   font-style: normal;
   user-select: none;
+  font-size: 15px;
+}
+
+#zidongchonglian{
+  position: relative;
+  left: 8px;
+  top:-2px;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  font-style: normal;
+  user-select: none;
+  font-size: 15px;
+  
 
 }
 #data_info{
@@ -194,6 +225,7 @@ onMounted(() => {
   left:30px;
   width: 1200px;
   margin-top: 10px;
+  user-select: none;
 
 }
 #data_url_input{
@@ -211,7 +243,7 @@ onMounted(() => {
 
 #task_name1x {
    position: absolute;
-   left: 150px;
+   left: 0px;
  }
 
  #Issave {
