@@ -1,5 +1,6 @@
 <template>
   <div id="task_new">
+    <el-button color="#705DEB" id="new_task1" @click="create_new_task">创建任务</el-button>
     <div id="taskx1">
       <h2 class="title_l">基础设置：</h2>
       <div id="task_name1">
@@ -44,7 +45,9 @@
         <div id="jwd">
           <label id="name_lable">中心点坐标：</label>
           <label id="file_upload">文件上传：</label>
-          <input v-model="task_info.trip_name" class="input" id="lon" />
+          <input v-model="task_info.trip_static_source_list[0].source_center_lon" class="input" id="lon" />
+          <p id="douhao">,</p>
+          <input v-model="task_info.trip_static_source_list[0].source_center_lat" class="input" id="lat" />
           <label class="must1">*</label>
           <el-upload class="upload-demo" id="upload" :show-file-list="true" drag :action="uploadip" :limit=1
             :on-success="handleSuccess" :on-remove="remove" multiple>
@@ -121,8 +124,8 @@ let task_info = ref(
       {
         "source_file": "/upload/2024/01/27/4b395a51-712d-4b0a-9194-9dc5f0f53cc2.txt",
         "source_type": "",
-        "source_center_lat": 0,
-        "source_center_lon": 0,
+        "source_center_lat": "",
+        "source_center_lon": "",
         "loop_send": true
       }
     ],
@@ -171,6 +174,7 @@ function handleSuccess(response, file, fileList) {
   console.log(file); // 上传的文件信息  
   console.log(fileList); // 上传的文件列表  
   file_name.value = file.name
+  task_info.value.trip_static_source_list[0].source_file=response.data.file_url
   document.getElementById("uploadsuccess").style.display = "inline-block";
 }
 
@@ -599,8 +603,20 @@ onMounted(() => {
 
  #lon {
    position: absolute;
-   width: 880px;
+   width: 420px;
    left: 110px;
+ }
+#douhao{
+   position: absolute;
+   left: 550px;
+   color: #ffffff;
+   font-size: 24px;
+   font-family: Arial, Helvetica, sans-serif;
+}
+ #lat {
+   position: absolute;
+   width: 420px;
+   left: 570px;
  }
 
  #bk1 {
@@ -668,6 +684,16 @@ onMounted(() => {
    top: 20px;
  }
 
+#new_task1{
+  position: absolute;
+  top: 50px;
+  left: 1440px;
+  width: 120px;
+  height: 40px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.1em;
 
+}
 </style>
 
