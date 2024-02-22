@@ -17,7 +17,7 @@
         <el-icon id="setting_icon" style="color: white" @click="task_setting">
           <Operation />
         </el-icon>
-        <p class="enable" id="setting" @click="task_setting">修改设置</p>
+        <p class="enable" id="setting" @click="task_setting(item.trip_id)">修改设置</p>
         <!-- 启停任务 -->
         <el-icon id="start_icon" :style="{ color: item.color2 }" @click="start_task(index, item.trip_id)">
           <component :is="item.icon" />
@@ -40,8 +40,8 @@ import { ElMessage } from 'element-plus'
 import router from "@/router"
 let url = window.location.hostname
 
-function task_setting(){
-  router.push('/transflowSetting')
+function task_setting(trip_id){
+  router.push(`/transflowSetting?trip_id=${trip_id}`)
 }
 function task_setting_new(){
   router.push('/transflowSetting_new')

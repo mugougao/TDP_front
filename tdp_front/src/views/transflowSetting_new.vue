@@ -30,14 +30,14 @@
         <el-button color="#705DEB" id="add_url" @click="add_url()" v-if="selectedPanel == 'zaixian'">添加数据源</el-button>
         <div v-for="(item, index) in task_info.trip_source_list" id="url_list" :key="index">
           <div id="data_info">
-            <label class="ev_lable" id="url_index">地址{{ index+1 }}：</label>
+            <label class="ev_lable" id="url_index">地址{{ index + 1 }}：</label>
             <input v-model="item.source_url" class="input" id="data_url_input" />
             <div id="retry">
-              <el-checkbox  v-model="item.retry" true-label="true" false-label="false"	 size="large" />
+              <el-checkbox v-model="item.retry" true-label="true" false-label="false" size="large" />
               <em id="zidongchonglian">自动重连</em>
-              <em id="shanchu"  @click="delete_url(index)" >删除</em>
+              <em id="shanchu" @click="delete_url(index)">删除</em>
             </div>
-            
+
           </div>
         </div>
       </div>
@@ -45,9 +45,11 @@
         <div id="jwd">
           <label id="name_lable">中心点坐标：</label>
           <label id="file_upload">文件上传：</label>
-          <input v-model="task_info.trip_static_source_list[0].source_center_lon" class="input" id="lon" />
+          <input v-model="task_info.trip_static_source_list[0].source_center_lon" placeholder="经度" class="input"
+            id="lon" />
           <p id="douhao">,</p>
-          <input v-model="task_info.trip_static_source_list[0].source_center_lat" class="input" id="lat" />
+          <input v-model="task_info.trip_static_source_list[0].source_center_lat" class="input" placeholder="纬度"
+            id="lat" />
           <label class="must1">*</label>
           <el-upload class="upload-demo" id="upload" :show-file-list="true" drag :action="uploadip" :limit=1
             :on-success="handleSuccess" :on-remove="remove" multiple>
@@ -73,15 +75,18 @@
         <div id="line2"></div>
       </div> -->
       <div class="task_name1" id="task_name1x" v-if="task_info.is_send_period_ms">
-        <label class="ev_lable"  id="bzzq">标准周期：</label>
+        <label class="ev_lable" id="bzzq">标准周期：</label>
         <input v-model="task_info.send_period_ms" class="input" id="pl" />
         <label class="ev_lable" id="ms">ms</label>
+        <label class="ev_lable" id="clhcsc">车辆缓存时长：</label>
+        <input v-model="task_info.car_cache_ms" class="input" id="pl1" />
+        <label class="ev_lable" id="ms1">ms</label>
       </div>
     </div>
     <div id="taskx4" v-if="selectedPanel == 'zaixian'">
       <h2 class="title_l ">轨迹落盘：</h2>
       <div id="Issave">
-        <el-switch v-model="task_info.is_dump" 	size="large" active-color="#705DEB" inactive-color="#000000" />
+        <el-switch v-model="task_info.is_dump" size="large" active-color="#705DEB" inactive-color="#000000" />
         <div id="line2"></div>
       </div>
       <label class="ev_lable" id="bcsj" v-if="task_info.is_dump">保存时间：</label>
@@ -94,8 +99,9 @@
     <div id="taskx6">
       <h2 class="title_l">轨迹调度：</h2>
       <div id="Issave">
-        <el-switch v-model="task_info.space_query" size="large"  active-active-value="true"  inactive-value="false"	active-color="#705DEB" inactive-color="#000000" />
-      <div id="line2"></div>
+        <el-switch v-model="task_info.space_query" size="large" active-active-value=true inactive-value=false
+          active-color="#705DEB" inactive-color="#000000" />
+        <div id="line2"></div>
       </div>
     </div>
     <div id="task_last">
@@ -106,6 +112,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
+import router from "@/router"
 let url = ref(0)
 
 let file_name = ref("")
@@ -118,14 +125,13 @@ let task_info = ref(
         "enable": true,
         "retry": false
       }
-
     ],
     "trip_static_source_list": [
       {
-        "source_file": "/upload/2024/01/27/4b395a51-712d-4b0a-9194-9dc5f0f53cc2.txt",
+        "source_file": "",
         "source_type": "",
-        "source_center_lat": "",
-        "source_center_lon": "",
+        "source_center_lat": 0,
+        "source_center_lon": 0,
         "loop_send": true
       }
     ],
@@ -136,11 +142,12 @@ let task_info = ref(
     "inactive_fix": false, //静止优化
     "turn_direction_fix": false,  //转向优化
     "fix_accuracy": "",       //优化级别 lane-车道 road-道路
-    "fix_file": "",   //路网文件 fix_file
-    "is_dump": "false",             //是否开启录制
-    "dump_expire_day": "",         //有效时长
-    "send_period_ms": "100",       //时间间隔
-    "is_send_period_ms":"false"
+    "fix_file": "",                 //路网文件 fix_file
+    "is_dump": false,             //是否开启录制
+    "dump_expire_day": 0,         //有效时长
+    "send_period_ms": 100,       //时间间隔
+    "is_send_period_ms": false,
+    "car_cache_ms": 500   //车辆保存时长
   }
 )
 const selectedPanel = ref("zaixian")
@@ -150,21 +157,71 @@ url.value = ws
 let uploadip = `http://${ip}:31000/api/v1/common/upload`
 
 
+function create_new_task() {
+  let body = task_info.value
+
+  //把部分字段的内容修改合法
+  for (let i = 0; i < body.trip_source_list.length; i++) {
+    if (body.trip_source_list[i].retry == "true") {
+      body.trip_source_list[i].retry = true
+    }
+    else {
+      body.trip_source_list[i].retry = false
+    }
+
+  }
+  body.dump_expire_day = parseFloat(body.dump_expire_day)
+  body.car_cache_ms = parseFloat(body.send_period_ms)
+  body.send_period_ms = parseFloat(body.send_period_ms)
+
+
+  for (let i = 0; i < body.trip_static_source_list.length; i++) {
+    body.trip_static_source_list[i].source_center_lat = parseFloat(body.trip_static_source_list[i].source_center_lat)
+    body.trip_static_source_list[i].source_center_lon = parseFloat(body.trip_static_source_list[i].source_center_lon)
+  }
+  body = JSON.stringify(body)
+
+  //调用接口创建任务
+  fetch(`http://${ip}:31000/api/v1/trip`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: body
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Success:', data);
+      router.push('/transflow')
+    })
+    .catch(error => {
+      console.error('创建任务失败，请刷新页面后再次尝试:', error);
+    });
+
+
+}
+//将task_info中的所有true/false 转化为bool值
 
 //添加一个数据源地址
 function add_url() {
   task_info.value.trip_source_list.push({
-        "source_url": "",
-        "source_protocol": "ws://",
-        "enable": true,
-        "retry": false
-      })
+    "source_url": "",
+    "source_protocol": "ws://",
+    "enable": true,
+    "retry": false
+  })
 }
 
 
 //删除一个数据源地址
-function delete_url(index){
-  task_info.value.trip_source_list.splice(index,1)
+function delete_url(index) {
+  task_info.value.trip_source_list.splice(index, 1)
 }
 
 
@@ -174,7 +231,7 @@ function handleSuccess(response, file, fileList) {
   console.log(file); // 上传的文件信息  
   console.log(fileList); // 上传的文件列表  
   file_name.value = file.name
-  task_info.value.trip_static_source_list[0].source_file=response.data.file_url
+  task_info.value.trip_static_source_list[0].source_file = response.data.file_url
   document.getElementById("uploadsuccess").style.display = "inline-block";
 }
 
@@ -193,59 +250,62 @@ onMounted(() => {
 
 </script>  
   
-<style> 
-#retry{
-  position: absolute;
-  top:-5px;
-  left: 1010px;
-  width:300px;
-}
-#shanchu{
-  position: relative;
-  left: 25px;
-  top:-2px;
-  color: rgb(122, 7, 7);
-  cursor: pointer;
-  font-style: normal;
-  user-select: none;
-  font-size: 15px;
-}
+<style> #retry {
+   position: absolute;
+   top: -5px;
+   left: 1010px;
+   width: 300px;
+ }
 
-#zidongchonglian{
-  position: relative;
-  left: 8px;
-  top:-2px;
-  color: rgb(255, 255, 255);
-  cursor: pointer;
-  font-style: normal;
-  user-select: none;
-  font-size: 15px;
-  
+ #shanchu {
+   position: relative;
+   left: 25px;
+   top: -2px;
+   color: rgb(122, 7, 7);
+   cursor: pointer;
+   font-style: normal;
+   user-select: none;
+   font-size: 15px;
+ }
 
-}
-#data_info{
-  position:relative;
-  top: -45px;
-  left:30px;
-  width: 1200px;
-  margin-top: 10px;
-  user-select: none;
+ #zidongchonglian {
+   position: relative;
+   left: 8px;
+   top: -2px;
+   color: rgb(255, 255, 255);
+   cursor: pointer;
+   font-style: normal;
+   user-select: none;
+   font-size: 15px;
 
-}
-#data_url_input{
-  position:relative;
-  top: 0px;
-  left: 26px;
-}
-#url_index{
-  position:relative;
-  top: 0px;
-  left: 0px;
-  width: 100px;
 
-}
+ }
 
-#task_name1x {
+ #data_info {
+   position: relative;
+   top: -45px;
+   left: 30px;
+   width: 1200px;
+   margin-top: 10px;
+   user-select: none;
+
+ }
+
+ #data_url_input {
+   position: relative;
+   top: 0px;
+   left: 26px;
+ }
+
+ #url_index {
+   position: relative;
+   top: 0px;
+   left: 0px;
+   width: 100px;
+
+ }
+
+ #task_name1x {
    position: absolute;
    left: 0px;
  }
@@ -283,6 +343,13 @@ onMounted(() => {
 
  }
 
+ #clhcsc {
+   position: relative;
+   top: 35px;
+   left: 80px;
+
+ }
+
  #tian {
    position: relative;
    top: 35px;
@@ -302,6 +369,12 @@ onMounted(() => {
    left: 38px;
  }
 
+ #ms1 {
+   position: relative;
+   top: 35px;
+   left: 85px;
+ }
+
  #add_url {
    position: relative;
    top: -70px;
@@ -311,6 +384,13 @@ onMounted(() => {
  #pl {
    position: relative;
    left: 30px;
+   top: 35px;
+   width: 50px;
+ }
+
+ #pl1 {
+   position: relative;
+   left: 80px;
    top: 35px;
    width: 50px;
  }
@@ -606,13 +686,15 @@ onMounted(() => {
    width: 420px;
    left: 110px;
  }
-#douhao{
+
+ #douhao {
    position: absolute;
    left: 550px;
    color: #ffffff;
    font-size: 24px;
    font-family: Arial, Helvetica, sans-serif;
-}
+ }
+
  #lat {
    position: absolute;
    width: 420px;
@@ -684,16 +766,16 @@ onMounted(() => {
    top: 20px;
  }
 
-#new_task1{
-  position: absolute;
-  top: 50px;
-  left: 1440px;
-  width: 120px;
-  height: 40px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 16px;
-  letter-spacing: 0.1em;
+ #new_task1 {
+   position: absolute;
+   top: 50px;
+   left: 1440px;
+   width: 120px;
+   height: 40px;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: 16px;
+   letter-spacing: 0.1em;
 
-}
+ }
 </style>
 

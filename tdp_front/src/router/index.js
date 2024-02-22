@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import station from '../views/station.vue'
 import transflow from '../views/transflow.vue'
 import transflowSetting from '../views/transflowSetting.vue'
@@ -33,7 +33,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 
