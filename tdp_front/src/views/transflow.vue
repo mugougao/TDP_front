@@ -46,6 +46,9 @@ function task_setting(trip_id){
 function task_setting_new(){
   router.push('/transflowSetting_new')
 }
+//进入页面后将左侧对应的按钮设置为紫色
+document.getElementById("transflow").style.backgroundColor = "#705DEB"
+
 let items = ref([]);
 async function getList(url) {
   try {
@@ -136,7 +139,7 @@ async function start_task(index, trip_id) {
       return response.json();
     })
     .then(data => {
-      // console.log('启停任务成功:', data)
+      console.log('启停任务成功:', data)
       getList(url)
     })
     .catch(error => {

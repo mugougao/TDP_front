@@ -11,6 +11,7 @@
       </div>
       <button id="transflow" @click="buttenclik">交通流数据处理工具箱</button>
       <button id="station" @click="buttenclik">公路桩号坐标计算工具箱</button>
+      <button id="transflow_test" @click="buttenclik">交通流数据质量可视化工具</button>
     </div>
     <router-view/>
   </body>
@@ -28,21 +29,32 @@ function buttenclik() {
     router.push('/transflow')
     document.getElementById("transflow").style.backgroundColor = "#705DEB"
     document.getElementById("station").style.backgroundColor = "#1C1E24"
+    document.getElementById("transflow_test").style.backgroundColor = "#1C1E24"
   }
   else if (clickedbuttenId == "station") {
     router.push('/station')
     document.getElementById("station").style.backgroundColor = "#705DEB"
+    document.getElementById("transflow").style.backgroundColor = "#1C1E24"
+    document.getElementById("transflow_test").style.backgroundColor = "#1C1E24"
+  }
+  else if (clickedbuttenId == "transflow_test") {
+    router.push('/transflow_test')
+    document.getElementById("transflow_test").style.backgroundColor = "#705DEB"
+    document.getElementById("station").style.backgroundColor = "#1C1E24"
     document.getElementById("transflow").style.backgroundColor = "#1C1E24"
   }
 }
 //保证页面刷新时左侧菜单栏选项颜色不变化
 onMounted(() => {
   let currentPageUrl = window.location.hash;
-  if (currentPageUrl == "#/transflow"|| currentPageUrl == "#/transflowSetting") {
+  if (currentPageUrl == "/transflow"|| currentPageUrl == "/transflowSetting") {
     document.getElementById("transflow").style.backgroundColor = "#705DEB"
   }
-  else if (currentPageUrl == "#/station") {
+  else if (currentPageUrl == "/station") {
     document.getElementById("station").style.backgroundColor = "#705DEB"
+  }
+  else if (currentPageUrl == "/transflow_test") {
+    document.getElementById("transflow_test").style.backgroundColor = "#705DEB"
   }
 })
 
@@ -90,6 +102,7 @@ body,html {
   background-color: #1C1E24;
   border: none;
   height: 40px;
+  cursor: pointer;
   left: 0%;
   top: 141px;
   width: 95%;
@@ -99,10 +112,7 @@ body,html {
   border-radius: 0px 10px 10px 0px;
 }
 
-#transflow:hover {
-  background-color: #3B3467;
 
-}
 
 
 #station {
@@ -112,6 +122,7 @@ body,html {
   background-color: #1C1E24;
   border: none;
   left: 0%;
+  cursor: pointer;
   top: 194px;
   height: 40px;
   width: 95%;
@@ -121,9 +132,24 @@ body,html {
   border-radius: 0px 10px 10px 0px;
 }
 
-#station:hover {
-  background-color: #3B3467;
-  
+
+#transflow_test {
+  position: absolute;
+  text-align: left;
+  text-indent: 20px;
+  background-color: #1C1E24;
+  border: none;
+  cursor: pointer;
+  left: 0%;
+  top: 247px;
+  height: 40px;
+  width: 95%;
+  opacity: 1;
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+  border-radius: 0px 10px 10px 0px;
 }
+
+
 
 </style>

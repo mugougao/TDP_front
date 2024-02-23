@@ -11,7 +11,7 @@
       <div id="task_url">
         <label id="url_lable">输出地址：</label>
         <div id="jiashurukuang">
-          <input v-model="task_info.trip_code" id="url_input" />
+          <input v-model="task_info.trip_code" @blur="handleBlur" id="url_input" />
           <p id="url1">{{ url }}</p>
           <div id="url_bkg"></div>
           <label class="must2">*</label>
@@ -113,6 +113,7 @@
 import { ref, onMounted } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 import router from "@/router"
+import { ElMessage } from 'element-plus'
 let url = ref(0)
 
 let file_name = ref("")
@@ -129,7 +130,7 @@ let task_info = ref(
     "trip_static_source_list": [
       {
         "source_file": "",
-        "source_type": "",
+        "source_type": "dst",
         "source_center_lat": 0,
         "source_center_lon": 0,
         "loop_send": true
@@ -156,11 +157,29 @@ let ws = `ws://${ip}:31000/ws/streamer/`
 url.value = ws
 let uploadip = `http://${ip}:31000/api/v1/common/upload`
 
+//检查输出地址的长度是否够
+function handleBlur(){
+  const regex = /^[a-zA-Z0-9]*$/;  
+  let xx=regex.test(task_info.value.trip_code)
+  let xxx=true
+  if(task_info.value.trip_code.length<5 ||xx!=true ){
 
+    ElMessage({
+    showClose: true,
+    message: 'url中只能包括字母或数字，长度不能小于5位.',
+    type: 'error',
+  })
+        xxx=false
+  }
+  return xxx
+}
+
+//创建任务
 function create_new_task() {
+  if(handleBlur()==true){
   let body = task_info.value
 
-  //把部分字段的内容修改合法
+  //把部分字段的值类型修改合法
   for (let i = 0; i < body.trip_source_list.length; i++) {
     if (body.trip_source_list[i].retry == "true") {
       body.trip_source_list[i].retry = true
@@ -173,13 +192,27 @@ function create_new_task() {
   body.dump_expire_day = parseFloat(body.dump_expire_day)
   body.car_cache_ms = parseFloat(body.send_period_ms)
   body.send_period_ms = parseFloat(body.send_period_ms)
-
+  if (body.space_query == "true") {
+      body.space_query = true
+    }
+    else {
+      body.space_query = false
+    }
 
   for (let i = 0; i < body.trip_static_source_list.length; i++) {
     body.trip_static_source_list[i].source_center_lat = parseFloat(body.trip_static_source_list[i].source_center_lat)
     body.trip_static_source_list[i].source_center_lon = parseFloat(body.trip_static_source_list[i].source_center_lon)
   }
+
+  if(body.trip_static_source_list[0].source_file==""){
+         delete body.trip_static_source_list
+
+  }
+  else{
+    body.trip_source_list.length=0
+  }
   body = JSON.stringify(body)
+  
 
   //调用接口创建任务
   fetch(`http://${ip}:31000/api/v1/trip`,
@@ -204,11 +237,10 @@ function create_new_task() {
       console.error('创建任务失败，请刷新页面后再次尝试:', error);
     });
 
-
+  }
 }
-//将task_info中的所有true/false 转化为bool值
 
-//添加一个数据源地址
+//添加一个在线数据源地址
 function add_url() {
   task_info.value.trip_source_list.push({
     "source_url": "",
@@ -219,7 +251,7 @@ function add_url() {
 }
 
 
-//删除一个数据源地址
+//删除一个在线数据源地址
 function delete_url(index) {
   task_info.value.trip_source_list.splice(index, 1)
 }
@@ -747,7 +779,7 @@ onMounted(() => {
    height: 182px;
    width: 884px;
    background-color: #000000;
-   top: 62px;
+   top: 65px;
    left: 111px;
    border-radius: 5px;
    display: none;

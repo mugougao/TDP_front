@@ -12,7 +12,7 @@
             <div id="task_url">
                 <label id="url_lable">输出地址：</label>
                 <div id="jiashurukuang">
-                    <input v-model="task_info.trip_code" id="url_input" />
+                    <input v-model="task_info.trip_code" @blur="handleBlur" id="url_input" />
                     <p id="url1">{{ url }}</p>
                     <div id="url_bkg"></div>
                     <label class="must2">*</label>
@@ -115,6 +115,7 @@
 import { ref, onMounted } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 import router from "@/router"
+import { ElMessage } from 'element-plus'
 let url = ref(0)
 
 let file_name = ref("")
@@ -131,7 +132,7 @@ let task_info = ref(
         "trip_static_source_list": [
             {
                 "source_file": "",
-                "source_type": "",
+                "source_type": "dst",
                 "source_center_lat": 0,
                 "source_center_lon": 0,
                 "loop_send": true
@@ -166,6 +167,7 @@ function back(){
 }
 
 function create_new_task() {
+ 
     let body = task_info.value
 
     //把部分字段的内容修改合法
@@ -213,8 +215,10 @@ function create_new_task() {
     });
 }
 
+
 //更新任务，先删除再创建
 function update_task(){
+    if(handleBlur()==true){
     fetch(`http://${ip}:31000/api/v1/trip/${task_info.value.trip_id}`,
         {
             method: 'DELETE',
@@ -231,12 +235,14 @@ function update_task(){
         })
         .then(data => {
             console.log('Success:', data);
+            handleBlur()
             create_new_task()
             //调用接口创建任务
         })
         .catch(error => {
             console.error('删除失败，请刷新页面后尝试:', error);
         });
+    }
 }
 //添加一个数据源地址
 function add_url() {
@@ -254,6 +260,22 @@ function delete_url(index) {
     task_info.value.trip_source_list.splice(index, 1)
 }
 
+//检查输出地址的长度是否够
+function handleBlur(){
+  const regex = /^[a-zA-Z0-9]*$/;  
+  let xx=regex.test(task_info.value.trip_code)
+  let xxx=true
+  if(task_info.value.trip_code.length<5 ||xx!=true ){
+
+    ElMessage({
+    showClose: true,
+    message: 'url中只能包括字母或数字，长度不能小于5位.',
+    type: 'error',
+  })
+        xxx=false
+  }
+  return xxx
+}
 
 //获取上传成功的回调之后，创建上传成功信息
 function handleSuccess(response, file, fileList) {
@@ -289,7 +311,7 @@ async function get_task_info(ip,href) {
        
         let x = {
             "source_file": "",
-            "source_type": "",
+            "source_type": "dst",
             "source_center_lat": 0,
             "source_center_lon": 0,
             "loop_send": true
@@ -815,7 +837,7 @@ onMounted(() => {
      height: 182px;
      width: 884px;
      background-color: #000000;
-     top: 62px;
+     top: 65px;
      left: 111px;
      border-radius: 5px;
      display: none;
@@ -857,6 +879,8 @@ onMounted(() => {
      letter-spacing: 0.1em;
 
  }
+
+
 </style>
   
   

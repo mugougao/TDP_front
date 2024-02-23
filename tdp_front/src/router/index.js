@@ -4,6 +4,7 @@ import transflow from '../views/transflow.vue'
 import transflowSetting from '../views/transflowSetting.vue'
 import start from '../views/start.vue'
 import transflowSetting_new from '../views/transflowSetting_new.vue'
+import transflow_test from '../views/transflow_test.vue'
 const routes = [
   {
     path: '/transflow',
@@ -19,6 +20,11 @@ const routes = [
     path: '/transflowSetting_new',
     name: 'transflowSetting_new',
     component: transflowSetting_new
+  },
+  {
+    path: '/transflow_test',
+    name: 'transflow_test',
+    component: transflow_test
   },
   {
     path: '/station',
