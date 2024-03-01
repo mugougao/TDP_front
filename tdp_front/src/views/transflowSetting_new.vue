@@ -147,7 +147,7 @@ let task_info = ref(
     "is_dump": false,             //是否开启录制
     "dump_expire_day": 0,         //有效时长
     "send_period_ms": 100,       //时间间隔
-    "is_send_period_ms": false,
+    "is_send_period_ms": true,
     "car_cache_ms": 500   //车辆保存时长
   }
 )
@@ -524,9 +524,9 @@ onMounted(() => {
    border-style: solid;
    border-color: #705DEB;
    border-width: 2px;
+   border-radius: 10px;
    height: 120px;
    width: 1479px;
-   border-radius: 10px;
    top: 100px;
    left: 80px;
  }

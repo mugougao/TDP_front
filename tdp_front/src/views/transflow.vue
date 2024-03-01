@@ -31,7 +31,7 @@
         <p class="enable" id="delete" @click="delete_task(index, item.trip_id)">删除任务</p>
       </div>
     </div>
-  <div id="last_div"></div>
+    <div id="last_div"></div>
   </div>
 </template>    
 <script setup>
@@ -40,10 +40,10 @@ import { ElMessage } from 'element-plus'
 import router from "@/router"
 let url = window.location.hostname
 
-function task_setting(trip_id){
+function task_setting(trip_id) {
   router.push(`/transflowSetting?trip_id=${trip_id}`)
 }
-function task_setting_new(){
+function task_setting_new() {
   router.push('/transflowSetting_new')
 }
 //进入页面后将左侧对应的按钮设置为紫色
@@ -140,6 +140,27 @@ async function start_task(index, trip_id) {
     })
     .then(data => {
       console.log('启停任务成功:', data)
+      if (data.code == 40001) {
+        ElMessage({
+          message: '离线数据处理未完成请稍后再试',
+          grouping: true,
+          type: 'warning',
+        })
+      }
+      else if (data.code == 200&state == "on") {
+        ElMessage({
+          message: '任务启动！',
+          grouping: true,
+          type: 'success',
+        })
+      }
+      else if (data.code == 200&state == "off") {
+        ElMessage({
+          message: '任务暂停！',
+          grouping: true,
+          type: 'info',
+        })
+      }
       getList(url)
     })
     .catch(error => {
@@ -174,9 +195,7 @@ getList(url)
 
 </script>  
   
-<style> 
-
-.transflow {
+<style> .transflow {
    position: absolute;
    right: 0px;
    left: 256px;
@@ -270,13 +289,15 @@ getList(url)
    margin-bottom: 15px;
    top: 130px;
  }
- #last_div{
-  position: relative;
-  width: 1479px;
-  height: 30px;
-  top: 120px;
-  left: 80px;
+
+ #last_div {
+   position: relative;
+   width: 1479px;
+   height: 30px;
+   top: 120px;
+   left: 80px;
  }
+
  #link_icon {
    left: 290px;
    cursor: pointer;
@@ -320,15 +341,14 @@ getList(url)
    cursor: pointer;
  }
 
- #new_task{
-  position: absolute;
-  top: 60px;
-  left: 1490px;
-  width: 120px;
-  height: 40px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 16px;
-  letter-spacing: 0.1em;
+ #new_task {
+   position: absolute;
+   top: 60px;
+   left: 1490px;
+   width: 120px;
+   height: 40px;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: 16px;
+   letter-spacing: 0.1em;
  }
-
- </style>
+</style>

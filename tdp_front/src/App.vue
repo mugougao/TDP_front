@@ -6,7 +6,7 @@
   <body>
     <div id="background"></div>
     <div id="menu_background">
-      <div id="timlogo">
+      <div id="timlogo" @click="backhome">
         <img src="@/assets/timlogo.png" style="width:100%; height:100%" alt="timlogo">
       </div>
       <button id="transflow" @click="buttenclik">交通流数据处理工具箱</button>
@@ -44,6 +44,14 @@ function buttenclik() {
     document.getElementById("transflow").style.backgroundColor = "#1C1E24"
   }
 }
+
+function backhome(){
+  router.push('/')
+  document.getElementById("transflow_test").style.backgroundColor = "#1C1E24"
+    document.getElementById("station").style.backgroundColor = "#1C1E24"
+    document.getElementById("transflow").style.backgroundColor = "#1C1E24"
+
+}
 //保证页面刷新时左侧菜单栏选项颜色不变化
 onMounted(() => {
   let currentPageUrl = window.location.hash;
@@ -57,6 +65,8 @@ onMounted(() => {
     document.getElementById("transflow_test").style.backgroundColor = "#705DEB"
   }
 })
+
+
 
 
 </script>
@@ -92,6 +102,7 @@ body,html {
   left: 10%;
   top: 21px;
   width: 80%;
+  cursor: pointer;
   opacity: 1;
 }
 
